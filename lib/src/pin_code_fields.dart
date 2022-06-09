@@ -97,6 +97,9 @@ class PinCodeTextField extends StatefulWidget {
   /// Enabled Color fill for individual pin fields, default is [false]
   final bool enableActiveFill;
 
+  /// Enabled Color shadow for individual pin fields, default is [false]
+  final bool enableActiveShadow;
+
   /// Auto dismiss the keyboard upon inputting the value for the last field. Default is [true]
   final bool autoDismissKeyboard;
 
@@ -193,6 +196,7 @@ class PinCodeTextField extends StatefulWidget {
     this.hapticFeedbackTypes = HapticFeedbackTypes.light,
     this.pastedTextStyle,
     this.enableActiveFill = false,
+    this.enableActiveShadow = false,
     this.textCapitalization = TextCapitalization.none,
     this.textInputAction = TextInputAction.done,
     this.autoDismissKeyboard = true,
@@ -348,6 +352,7 @@ class _PinCodeTextFieldState extends State<PinCodeTextField>
     assert(_dialogConfig.dialogContent != null &&
         _dialogConfig.dialogContent.isNotEmpty);
     assert(widget.enableActiveFill != null);
+    assert(widget.enableActiveShadow != null);
     assert(_pinTheme.activeFillColor != null);
     assert(_pinTheme.inactiveFillColor != null);
     assert(_pinTheme.selectedFillColor != null);
@@ -521,6 +526,19 @@ class _PinCodeTextFieldState extends State<PinCodeTextField>
       return _pinTheme.activeFillColor;
     }
     return _pinTheme.inactiveFillColor;
+  }
+
+  // selects the right color for shadow the field
+  List<BoxShadow> _getShadowColorFromIndex(int index) {
+    if (!widget.enabled) {
+      return null;
+    }
+    if (((_selectedIndex == index) ||
+        (_selectedIndex == index + 1 && index + 1 == widget.length)) &&
+        _focusNode.hasFocus) {
+      return widget.boxShadows;
+    }
+    return null;
   }
 
   /// Builds the widget to be shown
@@ -753,7 +771,9 @@ class _PinCodeTextFieldState extends State<PinCodeTextField>
             color: widget.enableActiveFill
                 ? _getFillColorFromIndex(i)
                 : Colors.transparent,
-            boxShadow: widget.boxShadows,
+            boxShadow: widget.enableActiveShadow
+                ? _getShadowColorFromIndex(i)
+                : widget.boxShadows,
             shape: _pinTheme.shape == PinCodeFieldShape.circle
                 ? BoxShape.circle
                 : BoxShape.rectangle,
